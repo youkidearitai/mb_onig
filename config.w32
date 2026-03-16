@@ -1,0 +1,7 @@
+ARG_ENABLE('mb_onig', 'mb_onig support', 'no');
+
+if (PHP_MB_ONIG != 'no') {
+	AC_DEFINE('HAVE_MB_ONIG', 1, "Define to 1 if the PHP extension 'mb_onig' is available.");
+
+	EXTENSION('mb_onig', 'mb_onig.c', null, '/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1');
+}
