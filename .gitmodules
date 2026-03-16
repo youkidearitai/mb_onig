@@ -1,0 +1,3 @@
+[submodule "oniguruma"]
+	path = oniguruma
+	url = ./oniguruma
