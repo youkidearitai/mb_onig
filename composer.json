@@ -2,9 +2,10 @@
     "name": "mb_onig/mb_onig",
     "type": "php-ext",
     "license": "BSD-3-Clause",
-    "description": "Describe your extension here",
+    "description": "Oniguruma maintenance end for replace to mbregex (experimental)",
     "require": {
-        "php": "^8.3"
+        "php": "^8.3",
+        "ext-mbstring": "*"
     },
     "php-ext": {
         "extension-name": "mb_onig",
