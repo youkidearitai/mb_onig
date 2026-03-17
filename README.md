@@ -6,13 +6,27 @@ This repository is extension for mbregex.
 
 ## How to compile
 
+### First step
+
+This repo uses `git submodule`.
+
+```
+git clone https://github.com/youkidearitai/mb_onig
+cd mb_onig
+git submodule init
+git submodule update
+```
+
 ### static (--enable-mb\_onig)
 
 ```
 cd /path/to/php-src/
 cd ext
 git clone https://github.com/youkidearitai/mb_onig
-cd ..
+cd mb_onig
+git submodule init
+git submodule update
+cd ../..
 ./buildconf -f
 ./configure --enable-mbstring --disable-mbregex --enable-mb_onig
 make
@@ -23,6 +37,9 @@ make
 ```
 git clone https://github.com/youkidearitai/mb_onig
 cd mb_onig
+git submodule init
+git submodule update
+cd ..
 phpize
 ./configure
 make
@@ -35,6 +52,12 @@ vi /path/to/php.ini # add extension=/path/to/mb_onig.so
 See <https://wiki.php.net/internals/windows/stepbystepbuild_sdk_2>.
 
 ```
+# in php-src directory
+git clone https://github.com/youkidearitai/mb_onig
+cd mb_onig
+git submodule init
+git submodule update
+cd ..
 buildconf
 configure --disable-all --enable-mbstring --enable-mb_onig[=shared]
 nmake
