@@ -1,5 +1,6 @@
 *.dep
 *.lo
+*.o
 *.la
 .libs
 acinclude.m4

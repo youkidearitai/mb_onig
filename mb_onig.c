@@ -8,6 +8,7 @@
 #include "ext/standard/info.h"
 #include "php_mb_onig.h"
 #include "mb_onig_arginfo.h"
+#include "php_mbregex.h"
 
 /* For compatibility with older PHP versions */
 #ifndef ZEND_PARSE_PARAMETERS_NONE
@@ -52,6 +53,7 @@ PHP_MINFO_FUNCTION(mb_onig)
 {
 	php_info_print_table_start();
 	php_info_print_table_row(2, "mb_onig support", "enabled");
+	php_info_print_table_row(2, "Oniguruma version", php_mb_oniguruma_version);
 	php_info_print_table_end();
 }
 
