@@ -57,6 +57,7 @@ AS_VAR_IF([PHP_MB_ONIG], [no],, [
   PHP_ADD_INCLUDE([$ext_srcdir/oniguruma])
   PHP_ADD_INCLUDE([$ext_builddir/oniguruma])
   PHP_ADD_INCLUDE([$ext_srcdir/oniguruma/src])
+  PHP_ADD_INCLUDE([$phpincludedir/ext/mbstring])
 
   dnl Include dirs: mbstring (for libmbfl/config.h used by php_mbregex.c).
   PHP_ADD_INCLUDE([$abs_srcdir/ext/mbstring])

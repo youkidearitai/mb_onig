@@ -14,6 +14,10 @@
    +----------------------------------------------------------------------+
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "libmbfl/config.h"
 
 #include "php.h"
@@ -24,8 +28,8 @@
 #include "zend_smart_str.h"
 #include "ext/standard/info.h"
 #include "php_mbregex.h"
+#include "php_mb_onig.h"
 #include "mbstring.h"
-#include "libmbfl/filters/mbfilter_utf8.h"
 
 #include "php_onig_compat.h" /* must come prior to the oniguruma header */
 #include <oniguruma.h>
@@ -44,8 +48,6 @@ typedef void OnigMatchParam;
 		onig_match(re, str, end, at, region, option)
 #endif
 
-ZEND_EXTERN_MODULE_GLOBALS(mbstring)
-
 char php_mb_oniguruma_version[256];
 
 struct _zend_mb_regex_globals {
@@ -62,7 +64,7 @@ struct _zend_mb_regex_globals {
 	OnigSyntaxType *regex_default_syntax;
 };
 
-#define MBREX(g) (MBSTRG(mb_regex_globals)->g)
+#define MBREX(g) (MBONIG(mb_regex_globals)->g)
 
 /* {{{ static void php_mb_regex_free_cache() */
 static void php_mb_regex_free_cache(zval *el) {
@@ -75,7 +77,7 @@ static int _php_mb_regex_globals_ctor(zend_mb_regex_globals *pglobals)
 {
 	pglobals->default_mbctype = ONIG_ENCODING_UTF8;
 	pglobals->current_mbctype = ONIG_ENCODING_UTF8;
-	pglobals->current_mbctype_mbfl_encoding = &mbfl_encoding_utf8;
+	pglobals->current_mbctype_mbfl_encoding = mbfl_name2encoding("UTF-8");
 	ZVAL_UNDEF(&pglobals->search_str);
 	pglobals->search_re = (php_mb_regex_t*)NULL;
 	pglobals->search_pos = 0;
@@ -132,7 +134,7 @@ PHP_MSHUTDOWN_FUNCTION(mb_regex)
 /* {{{ PHP_RINIT_FUNCTION(mb_regex) */
 PHP_RINIT_FUNCTION(mb_regex)
 {
-	if (!MBSTRG(mb_regex_globals)) return FAILURE;
+	if (!MBONIG(mb_regex_globals)) return FAILURE;
 	zend_hash_init(&MBREX(ht_rc), 0, NULL, php_mb_regex_free_cache, 0);
 	return SUCCESS;
 }
@@ -861,11 +863,15 @@ static int _php_mb_onig_search(regex_t* reg, const OnigUChar* str, const OnigUCh
 	OnigMatchParam *mp = onig_new_match_param();
 	int err;
 	onig_initialize_match_param(mp);
-	if (!ZEND_LONG_UINT_OVFL(MBSTRG(regex_stack_limit))) {
-		onig_set_match_stack_limit_size_of_match_param(mp, (unsigned int)MBSTRG(regex_stack_limit));
-	}
-	if (!ZEND_LONG_UINT_OVFL(MBSTRG(regex_retry_limit))) {
-		onig_set_retry_limit_in_match_of_match_param(mp, (unsigned int)MBSTRG(regex_retry_limit));
+	{
+		zend_long stack_limit = INI_INT("mbstring.regex_stack_limit");
+		zend_long retry_limit = INI_INT("mbstring.regex_retry_limit");
+		if (!ZEND_LONG_UINT_OVFL(stack_limit)) {
+			onig_set_match_stack_limit_size_of_match_param(mp, (unsigned int)stack_limit);
+		}
+		if (!ZEND_LONG_UINT_OVFL(retry_limit)) {
+			onig_set_retry_limit_in_match_of_match_param(mp, (unsigned int)retry_limit);
+		}
 	}
 	/* search */
 	err = onig_search_with_param(reg, str, end, start, range, region, option, mp);
@@ -1286,11 +1292,15 @@ PHP_FUNCTION(mb_ereg_match)
 
 	mp = onig_new_match_param();
 	onig_initialize_match_param(mp);
-	if (MBSTRG(regex_stack_limit) > 0 && MBSTRG(regex_stack_limit) < UINT_MAX) {
-		onig_set_match_stack_limit_size_of_match_param(mp, (unsigned int)MBSTRG(regex_stack_limit));
-	}
-	if (MBSTRG(regex_retry_limit) > 0 && MBSTRG(regex_retry_limit) < UINT_MAX) {
-		onig_set_retry_limit_in_match_of_match_param(mp, (unsigned int)MBSTRG(regex_retry_limit));
+	{
+		zend_long stack_limit = INI_INT("mbstring.regex_stack_limit");
+		zend_long retry_limit = INI_INT("mbstring.regex_retry_limit");
+		if (stack_limit > 0 && stack_limit < UINT_MAX) {
+			onig_set_match_stack_limit_size_of_match_param(mp, (unsigned int)stack_limit);
+		}
+		if (retry_limit > 0 && retry_limit < UINT_MAX) {
+			onig_set_retry_limit_in_match_of_match_param(mp, (unsigned int)retry_limit);
+		}
 	}
 	/* match */
 	err = onig_match_with_param(re, (OnigUChar *)string, (OnigUChar *)(string + string_len), (OnigUChar *)string, NULL, 0, mp);

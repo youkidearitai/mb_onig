@@ -1,43 +1,46 @@
 /* mb_onig extension for PHP */
 
 #ifdef HAVE_CONFIG_H
-# include <config.h>
+# include "config.h"
 #endif
 
 #include "php.h"
 #include "ext/standard/info.h"
 #include "php_mb_onig.h"
-#include "mb_onig_arginfo.h"
 #include "php_mbregex.h"
 
-/* For compatibility with older PHP versions */
-#ifndef ZEND_PARSE_PARAMETERS_NONE
-#define ZEND_PARSE_PARAMETERS_NONE() \
-	ZEND_PARSE_PARAMETERS_START(0, 0) \
-	ZEND_PARSE_PARAMETERS_END()
+/* mb_onig always provides mb_ereg* regardless of the PHP build's mbregex
+ * support.  The arginfo header guards everything with #if !defined(HAVE_MBREGEX),
+ * so temporarily suppress the macro so the function table is populated. */
+#ifdef HAVE_MBREGEX
+# define MB_ONIG_HAD_MBREGEX
+# undef HAVE_MBREGEX
+#endif
+#include "mb_onig_arginfo.h"
+#ifdef MB_ONIG_HAD_MBREGEX
+# define HAVE_MBREGEX 1
+# undef MB_ONIG_HAD_MBREGEX
 #endif
 
-PHP_FUNCTION(test1)
-{
-	ZEND_PARSE_PARAMETERS_NONE();
+ZEND_DECLARE_MODULE_GLOBALS(mb_onig)
 
-	php_printf("The extension %s is loaded and working!\r\n", "mb_onig");
+static PHP_GINIT_FUNCTION(mb_onig)
+{
+#if defined(COMPILE_DL_MB_ONIG) && defined(ZTS)
+	ZEND_TSRMLS_CACHE_UPDATE();
+#endif
+	mb_onig_globals->mb_regex_globals = php_mb_regex_globals_alloc();
 }
 
-PHP_FUNCTION(test2)
+static PHP_GSHUTDOWN_FUNCTION(mb_onig)
 {
-	char *var = "World";
-	size_t var_len = sizeof("World") - 1;
-	zend_string *retval;
+	php_mb_regex_globals_free(mb_onig_globals->mb_regex_globals);
+}
 
-	ZEND_PARSE_PARAMETERS_START(0, 1)
-		Z_PARAM_OPTIONAL
-		Z_PARAM_STRING(var, var_len)
-	ZEND_PARSE_PARAMETERS_END();
-
-	retval = strpprintf(0, "Hello %s", var);
-
-	RETURN_STR(retval);
+PHP_MINIT_FUNCTION(mb_onig)
+{
+	register_mb_onig_symbols(module_number);
+	return PHP_MINIT(mb_regex)(INIT_FUNC_ARGS_PASSTHRU);
 }
 
 PHP_RINIT_FUNCTION(mb_onig)
@@ -45,8 +48,7 @@ PHP_RINIT_FUNCTION(mb_onig)
 #if defined(ZTS) && defined(COMPILE_DL_MB_ONIG)
 	ZEND_TSRMLS_CACHE_UPDATE();
 #endif
-
-	return SUCCESS;
+	return PHP_RINIT(mb_regex)(INIT_FUNC_ARGS_PASSTHRU);
 }
 
 PHP_MINFO_FUNCTION(mb_onig)
@@ -58,16 +60,22 @@ PHP_MINFO_FUNCTION(mb_onig)
 }
 
 zend_module_entry mb_onig_module_entry = {
-	STANDARD_MODULE_HEADER,
+	STANDARD_MODULE_HEADER_EX,
+	NULL,
+	NULL,
 	"mb_onig",					/* Extension name */
-	ext_functions,					/* zend_function_entry */
-	NULL,							/* PHP_MINIT - Module initialization */
-	NULL,							/* PHP_MSHUTDOWN - Module shutdown */
+	ext_functions,				/* zend_function_entry */
+	PHP_MINIT(mb_onig),			/* PHP_MINIT - Module initialization */
+	PHP_MSHUTDOWN(mb_regex),	/* PHP_MSHUTDOWN - Module shutdown */
 	PHP_RINIT(mb_onig),			/* PHP_RINIT - Request initialization */
-	NULL,							/* PHP_RSHUTDOWN - Request shutdown */
+	PHP_RSHUTDOWN(mb_regex),	/* PHP_RSHUTDOWN - Request shutdown */
 	PHP_MINFO(mb_onig),			/* PHP_MINFO - Module info */
 	PHP_MB_ONIG_VERSION,		/* Version */
-	STANDARD_MODULE_PROPERTIES
+	PHP_MODULE_GLOBALS(mb_onig),
+	PHP_GINIT(mb_onig),
+	PHP_GSHUTDOWN(mb_onig),
+	NULL,
+	STANDARD_MODULE_PROPERTIES_EX
 };
 
 #ifdef COMPILE_DL_MB_ONIG
