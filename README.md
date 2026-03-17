@@ -40,8 +40,6 @@ configure --disable-all --enable-mbstring --enable-mb_onig[=shared]
 nmake
 ```
 
-buildconf
-
 ## LICENSE 
 
 See LICENSE file.
