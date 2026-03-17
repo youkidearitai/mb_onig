@@ -1,7 +1,96 @@
 ARG_ENABLE('mb_onig', 'mb_onig support', 'no');
 
 if (PHP_MB_ONIG != 'no') {
+	// HAVE_MB_ONIG is safe to define globally (used only by mb_onig itself).
 	AC_DEFINE('HAVE_MB_ONIG', 1, "Define to 1 if the PHP extension 'mb_onig' is available.");
+	// NOTE: HAVE_MBREGEX must NOT be set via AC_DEFINE here.  AC_DEFINE writes
+	// to main/config.w32.h which is included by all extensions.  If mbstring
+	// also sees HAVE_MBREGEX=1 it will register mb_ereg* functions, causing
+	// duplicate-function warnings with mb_onig.  Pass it only as a per-extension
+	// /D flag via ADD_FLAG below.
 
-	EXTENSION('mb_onig', 'mb_onig.c', null, '/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1');
+	var onig_src_dir = configure_module_dirname + "\\oniguruma\\src";
+
+	// oniguruma needs config.h on Windows; copy the pre-made win32 version.
+	if (FSO.FileExists(onig_src_dir + "\\config.h.win32")) {
+		FSO.CopyFile(onig_src_dir + "\\config.h.win32", onig_src_dir + "\\config.h");
+	}
+
+	// Declare the extension with only the top-level sources.
+	// Subdirectory sources are added separately via ADD_SOURCES so that the
+	// build system can generate correct per-file Makefile rules and output
+	// directories for the oniguruma/src/*.obj files.
+	EXTENSION('mb_onig', 'mb_onig.c php_mbregex.c', PHP_MB_ONIG == 'shared',
+		'/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1');
+
+	// Flags for all mb_onig sources (including those added via ADD_SOURCES).
+	// /DONIG_EXTERN=extern prevents __declspec(dllimport) on OnigEncodingXXX
+	// symbols so that &OnigEncodingXXX is a compile-time constant on MSVC
+	// (required for static struct initializers; avoids C2099).
+	ADD_FLAG('CFLAGS_MB_ONIG',
+		'/DHAVE_MBREGEX=1 /DHAVE_ONIG=1 /DPHP_ONIG_BUNDLED=1 ' +
+		'/DHAVE_MB_ONIG=1 /DHAVE_STDARG_PROTOTYPES=1 ' +
+		'/DNOT_RUBY /DONIG_ESCAPE_UCHAR_COLLISION=1 /DUChar=OnigUChar ' +
+		'/DONIG_EXTERN=extern ' +
+		'/I' + configure_module_dirname + '\\oniguruma ' +
+		'/I' + configure_module_dirname + '\\oniguruma\\src ' +
+		'/I' + configure_module_dirname + '\\..\\mbstring');
+
+	// Bundled oniguruma sources.  ADD_SOURCES(dir, files, ext) generates
+	// correct per-file Makefile rules with proper output subdirectories.
+	ADD_SOURCES('ext/mb_onig/oniguruma/src',
+		'ascii.c ' +
+		'big5.c ' +
+		'cp1251.c ' +
+		'euc_jp.c ' +
+		'euc_jp_prop.c ' +
+		'euc_kr.c ' +
+		'euc_tw.c ' +
+		'gb18030.c ' +
+		'iso8859_1.c ' +
+		'iso8859_10.c ' +
+		'iso8859_11.c ' +
+		'iso8859_13.c ' +
+		'iso8859_14.c ' +
+		'iso8859_15.c ' +
+		'iso8859_16.c ' +
+		'iso8859_2.c ' +
+		'iso8859_3.c ' +
+		'iso8859_4.c ' +
+		'iso8859_5.c ' +
+		'iso8859_6.c ' +
+		'iso8859_7.c ' +
+		'iso8859_8.c ' +
+		'iso8859_9.c ' +
+		'koi8.c ' +
+		'koi8_r.c ' +
+		'onig_init.c ' +
+		'regcomp.c ' +
+		'regenc.c ' +
+		'regerror.c ' +
+		'regexec.c ' +
+		'regext.c ' +
+		'reggnu.c ' +
+		'regparse.c ' +
+		'regposerr.c ' +
+		'regposix.c ' +
+		'regsyntax.c ' +
+		'regtrav.c ' +
+		'regversion.c ' +
+		'sjis.c ' +
+		'sjis_prop.c ' +
+		'st.c ' +
+		'unicode.c ' +
+		'unicode_fold1_key.c ' +
+		'unicode_fold2_key.c ' +
+		'unicode_fold3_key.c ' +
+		'unicode_unfold_key.c ' +
+		'utf16_be.c ' +
+		'utf16_le.c ' +
+		'utf32_be.c ' +
+		'utf32_le.c ' +
+		'utf8.c',
+		'mb_onig');
+
+	ADD_EXTENSION_DEP('mb_onig', 'mbstring');
 }
