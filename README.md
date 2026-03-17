@@ -30,7 +30,17 @@ make install
 vi /path/to/php.ini # add extension=/path/to/mb_onig.so
 ```
 
-I tried Linux only for now.
+### Windows
+
+See <https://wiki.php.net/internals/windows/stepbystepbuild_sdk_2>.
+
+```
+buildconf
+configure --disable-all --enable-mbstring --enable-mb_onig[=shared]
+nmake
+```
+
+buildconf
 
 ## LICENSE 
 
