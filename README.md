@@ -6,6 +6,8 @@ This repository is extension for mbregex.
 
 ## How to compile
 
+**Please delete mbregex(--disable-mbregex) in mbstring**
+
 ### static (--enable-mb\_onig)
 
 ```

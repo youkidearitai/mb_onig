@@ -7,6 +7,10 @@
         "php": "^8.3",
         "ext-mbstring": "*"
     },
+    "support": {
+        "source": "https://github.com/youkidearitai/mb_onig",
+        "issues": "https://github.com/youkidearitai/mb_onig/issues"
+    },
     "php-ext": {
         "extension-name": "mb_onig",
         "configure-options": [
