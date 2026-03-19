@@ -24,6 +24,11 @@
 
 ZEND_DECLARE_MODULE_GLOBALS(mb_onig)
 
+PHP_INI_BEGIN()
+	PHP_INI_ENTRY("mbstring.regex_stack_limit", "100000", PHP_INI_ALL, NULL)
+	PHP_INI_ENTRY("mbstring.regex_retry_limit", "1000000", PHP_INI_ALL, NULL)
+PHP_INI_END()
+
 static PHP_GINIT_FUNCTION(mb_onig)
 {
 #if defined(COMPILE_DL_MB_ONIG) && defined(ZTS)
@@ -42,6 +47,7 @@ PHP_MINIT_FUNCTION(mb_onig)
 	if (PHP_MINIT(mb_regex)(INIT_FUNC_ARGS_PASSTHRU) != SUCCESS) {
 		return FAILURE;
 	}
+	REGISTER_INI_ENTRIES();
 	register_mb_onig_symbols(module_number);
 	return SUCCESS;
 }
@@ -52,6 +58,12 @@ PHP_RINIT_FUNCTION(mb_onig)
 	ZEND_TSRMLS_CACHE_UPDATE();
 #endif
 	return PHP_RINIT(mb_regex)(INIT_FUNC_ARGS_PASSTHRU);
+}
+
+PHP_MSHUTDOWN_FUNCTION(mb_onig)
+{
+	UNREGISTER_INI_ENTRIES();
+	return PHP_MSHUTDOWN(mb_regex)(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 }
 
 PHP_MINFO_FUNCTION(mb_onig)
@@ -69,7 +81,7 @@ zend_module_entry mb_onig_module_entry = {
 	"mb_onig",					/* Extension name */
 	ext_functions,				/* zend_function_entry */
 	PHP_MINIT(mb_onig),			/* PHP_MINIT - Module initialization */
-	PHP_MSHUTDOWN(mb_regex),	/* PHP_MSHUTDOWN - Module shutdown */
+	PHP_MSHUTDOWN(mb_onig),		/* PHP_MSHUTDOWN - Module shutdown */
 	PHP_RINIT(mb_onig),			/* PHP_RINIT - Request initialization */
 	PHP_RSHUTDOWN(mb_regex),	/* PHP_RSHUTDOWN - Request shutdown */
 	PHP_MINFO(mb_onig),			/* PHP_MINFO - Module info */
