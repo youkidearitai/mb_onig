@@ -39,8 +39,11 @@ static PHP_GSHUTDOWN_FUNCTION(mb_onig)
 
 PHP_MINIT_FUNCTION(mb_onig)
 {
+	if (PHP_MINIT(mb_regex)(INIT_FUNC_ARGS_PASSTHRU) != SUCCESS) {
+		return FAILURE;
+	}
 	register_mb_onig_symbols(module_number);
-	return PHP_MINIT(mb_regex)(INIT_FUNC_ARGS_PASSTHRU);
+	return SUCCESS;
 }
 
 PHP_RINIT_FUNCTION(mb_onig)
