@@ -8,6 +8,14 @@ This repository is extension for mbregex.
 
 **Please delete mbregex(--disable-mbregex) in mbstring**
 
+### Packagist
+
+<https://packagist.org/packages/mb_onig/mb_onig>
+
+```
+pie install mb_onig/mb_onig
+```
+
 ### static (--enable-mb\_onig)
 
 ```
