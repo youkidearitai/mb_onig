@@ -2,7 +2,7 @@
     "name": "mb_onig/mb_onig",
     "type": "php-ext",
     "license": "BSD-3-Clause",
-    "description": "Oniguruma maintenance end for replace to mbregex (experimental)",
+    "description": "Oniguruma maintenance and re-implements mbregex(such as mb_ereg* functions)",
     "require": {
         "php": "^8.3",
         "ext-mbstring": "*"
@@ -17,7 +17,7 @@
             {
                 "name": "enable-mb_onig",
                 "needs-value": false,
-                "description": "whether to enable mb_onig support"
+                "description": "whether to enable mbregex(such as mb_ereg* functions) support"
             }
         ]
     }
