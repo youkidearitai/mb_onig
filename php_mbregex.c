@@ -23,8 +23,6 @@
 #include "php.h"
 #include "php_ini.h"
 
-#ifdef HAVE_MBREGEX
-
 #include "zend_smart_str.h"
 #include "ext/standard/info.h"
 #include "php_mbregex.h"
@@ -898,7 +896,7 @@ static void _php_mb_regex_ereg_exec(INTERNAL_FUNCTION_PARAMETERS, int icase)
 	}
 
 	if (arg_pattern_len == 0) {
-		zend_argument_must_not_be_empty_error(1);
+		zend_argument_value_error(1, "must not be empty");
 		RETURN_THROWS();
 	}
 
@@ -1460,7 +1458,7 @@ PHP_FUNCTION(mb_ereg_search_init)
 	}
 
 	if (arg_pattern && arg_pattern_len == 0) {
-		zend_argument_must_not_be_empty_error(2);
+		zend_argument_value_error(2, "must not be empty");
 		RETURN_THROWS();
 	}
 
@@ -1621,4 +1619,3 @@ PHP_FUNCTION(mb_regex_set_options)
 }
 /* }}} */
 
-#endif	/* HAVE_MBREGEX */

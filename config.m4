@@ -44,8 +44,6 @@ AS_VAR_IF([PHP_MB_ONIG], [no],, [
     [Define to 1 if the bundled oniguruma is used.])
   AC_DEFINE([HAVE_ONIG], [1],
     [Define to 1 if the oniguruma library is available.])
-  AC_DEFINE([HAVE_MBREGEX], [1],
-    [Define to 1 if mbstring has multibyte regex support enabled.])
   AC_DEFINE([HAVE_MB_ONIG], [1],
     [Define to 1 if the PHP extension 'mb_onig' is available.])
 
@@ -65,64 +63,13 @@ AS_VAR_IF([PHP_MB_ONIG], [no],, [
 
   dnl ---------------------------------------------------------------
   dnl Declare the extension with all required source files.
+  dnl Use a variable so that autoconf does not embed literal newlines
+  dnl into the generated 'for ac_src in ...' shell loop (which would
+  dnl break POSIX sh / dash at configure time).
   dnl ---------------------------------------------------------------
-  PHP_NEW_EXTENSION([mb_onig],
-    [mb_onig.c
-     php_mbregex.c
-     oniguruma/src/ascii.c
-     oniguruma/src/big5.c
-     oniguruma/src/cp1251.c
-     oniguruma/src/euc_jp.c
-     oniguruma/src/euc_jp_prop.c
-     oniguruma/src/euc_kr.c
-     oniguruma/src/euc_tw.c
-     oniguruma/src/gb18030.c
-     oniguruma/src/iso8859_1.c
-     oniguruma/src/iso8859_10.c
-     oniguruma/src/iso8859_11.c
-     oniguruma/src/iso8859_13.c
-     oniguruma/src/iso8859_14.c
-     oniguruma/src/iso8859_15.c
-     oniguruma/src/iso8859_16.c
-     oniguruma/src/iso8859_2.c
-     oniguruma/src/iso8859_3.c
-     oniguruma/src/iso8859_4.c
-     oniguruma/src/iso8859_5.c
-     oniguruma/src/iso8859_6.c
-     oniguruma/src/iso8859_7.c
-     oniguruma/src/iso8859_8.c
-     oniguruma/src/iso8859_9.c
-     oniguruma/src/koi8.c
-     oniguruma/src/koi8_r.c
-     oniguruma/src/onig_init.c
-     oniguruma/src/regcomp.c
-     oniguruma/src/regenc.c
-     oniguruma/src/regerror.c
-     oniguruma/src/regexec.c
-     oniguruma/src/regext.c
-     oniguruma/src/reggnu.c
-     oniguruma/src/regparse.c
-     oniguruma/src/regposerr.c
-     oniguruma/src/regposix.c
-     oniguruma/src/regsyntax.c
-     oniguruma/src/regtrav.c
-     oniguruma/src/regversion.c
-     oniguruma/src/sjis.c
-     oniguruma/src/sjis_prop.c
-     oniguruma/src/st.c
-     oniguruma/src/unicode.c
-     oniguruma/src/unicode_fold1_key.c
-     oniguruma/src/unicode_fold2_key.c
-     oniguruma/src/unicode_fold3_key.c
-     oniguruma/src/unicode_unfold_key.c
-     oniguruma/src/utf16_be.c
-     oniguruma/src/utf16_le.c
-     oniguruma/src/utf32_be.c
-     oniguruma/src/utf32_le.c
-     oniguruma/src/utf8.c],
-    [$ext_shared],,
-    [-DNOT_RUBY -DONIG_ESCAPE_UCHAR_COLLISION=1 -DUChar=OnigUChar
-     -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1])
+  PHP_MB_ONIG_SOURCES="mb_onig.c php_mbregex.c oniguruma/src/ascii.c oniguruma/src/big5.c oniguruma/src/cp1251.c oniguruma/src/euc_jp.c oniguruma/src/euc_jp_prop.c oniguruma/src/euc_kr.c oniguruma/src/euc_tw.c oniguruma/src/gb18030.c oniguruma/src/iso8859_1.c oniguruma/src/iso8859_10.c oniguruma/src/iso8859_11.c oniguruma/src/iso8859_13.c oniguruma/src/iso8859_14.c oniguruma/src/iso8859_15.c oniguruma/src/iso8859_16.c oniguruma/src/iso8859_2.c oniguruma/src/iso8859_3.c oniguruma/src/iso8859_4.c oniguruma/src/iso8859_5.c oniguruma/src/iso8859_6.c oniguruma/src/iso8859_7.c oniguruma/src/iso8859_8.c oniguruma/src/iso8859_9.c oniguruma/src/koi8.c oniguruma/src/koi8_r.c oniguruma/src/onig_init.c oniguruma/src/regcomp.c oniguruma/src/regenc.c oniguruma/src/regerror.c oniguruma/src/regexec.c oniguruma/src/regext.c oniguruma/src/reggnu.c oniguruma/src/regparse.c oniguruma/src/regposerr.c oniguruma/src/regposix.c oniguruma/src/regsyntax.c oniguruma/src/regtrav.c oniguruma/src/regversion.c oniguruma/src/sjis.c oniguruma/src/sjis_prop.c oniguruma/src/st.c oniguruma/src/unicode.c oniguruma/src/unicode_fold1_key.c oniguruma/src/unicode_fold2_key.c oniguruma/src/unicode_fold3_key.c oniguruma/src/unicode_unfold_key.c oniguruma/src/utf16_be.c oniguruma/src/utf16_le.c oniguruma/src/utf32_be.c oniguruma/src/utf32_le.c oniguruma/src/utf8.c"
+  PHP_NEW_EXTENSION([mb_onig], $PHP_MB_ONIG_SOURCES, [$ext_shared],,
+    [-DNOT_RUBY -DONIG_ESCAPE_UCHAR_COLLISION=1 -DUChar=OnigUChar -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1])
 
   dnl mb_onig depends on mbstring (for libmbfl).
   PHP_ADD_EXTENSION_DEP([mb_onig], [mbstring])

@@ -17,8 +17,6 @@
 #ifndef _PHP_MBREGEX_H
 #define _PHP_MBREGEX_H
 
-#ifdef HAVE_MBREGEX
-
 #include "php.h"
 #include "zend.h"
 
@@ -40,7 +38,5 @@ int php_mb_regex_set_mbctype(const char *enc);
 int php_mb_regex_set_default_mbctype(const char *encname);
 const char *php_mb_regex_get_mbctype(void);
 const char *php_mb_regex_get_default_mbctype(void);
-
-#endif /* HAVE_MBREGEX */
 
 #endif /* _PHP_MBREGEX_H */
