@@ -862,8 +862,8 @@ static int _php_mb_onig_search(regex_t* reg, const OnigUChar* str, const OnigUCh
 	int err;
 	onig_initialize_match_param(mp);
 	{
-		zend_long stack_limit = INI_INT("mbstring.regex_stack_limit");
-		zend_long retry_limit = INI_INT("mbstring.regex_retry_limit");
+		zend_long stack_limit = ZEND_MODULE_GLOBALS_ACCESSOR(mb_onig, regex_stack_limit);
+		zend_long retry_limit = ZEND_MODULE_GLOBALS_ACCESSOR(mb_onig, regex_retry_limit);
 		if (!ZEND_LONG_UINT_OVFL(stack_limit)) {
 			onig_set_match_stack_limit_size_of_match_param(mp, (unsigned int)stack_limit);
 		}
@@ -1291,8 +1291,8 @@ PHP_FUNCTION(mb_ereg_match)
 	mp = onig_new_match_param();
 	onig_initialize_match_param(mp);
 	{
-		zend_long stack_limit = INI_INT("mbstring.regex_stack_limit");
-		zend_long retry_limit = INI_INT("mbstring.regex_retry_limit");
+		zend_long stack_limit = ZEND_MODULE_GLOBALS_ACCESSOR(mb_onig, regex_stack_limit);
+		zend_long retry_limit = ZEND_MODULE_GLOBALS_ACCESSOR(mb_onig, regex_retry_limit);
 		if (stack_limit > 0 && stack_limit < UINT_MAX) {
 			onig_set_match_stack_limit_size_of_match_param(mp, (unsigned int)stack_limit);
 		}

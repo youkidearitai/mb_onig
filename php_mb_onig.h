@@ -16,6 +16,8 @@ struct _zend_mb_regex_globals;
 
 ZEND_BEGIN_MODULE_GLOBALS(mb_onig)
 	struct _zend_mb_regex_globals *mb_regex_globals;
+	zend_long regex_stack_limit;
+	zend_long regex_retry_limit;
 ZEND_END_MODULE_GLOBALS(mb_onig)
 
 ZEND_EXTERN_MODULE_GLOBALS(mb_onig)

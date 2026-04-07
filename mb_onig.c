@@ -25,8 +25,8 @@
 ZEND_DECLARE_MODULE_GLOBALS(mb_onig)
 
 PHP_INI_BEGIN()
-	PHP_INI_ENTRY("mbstring.regex_stack_limit", "100000", PHP_INI_ALL, NULL)
-	PHP_INI_ENTRY("mbstring.regex_retry_limit", "1000000", PHP_INI_ALL, NULL)
+	STD_PHP_INI_ENTRY("mbstring.regex_stack_limit", "100000", PHP_INI_ALL, OnUpdateLong, regex_stack_limit, zend_mb_onig_globals, mb_onig_globals)
+	STD_PHP_INI_ENTRY("mbstring.regex_retry_limit", "1000000", PHP_INI_ALL, OnUpdateLong, regex_retry_limit, zend_mb_onig_globals, mb_onig_globals)
 PHP_INI_END()
 
 static PHP_GINIT_FUNCTION(mb_onig)
